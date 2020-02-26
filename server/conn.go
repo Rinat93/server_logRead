@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"strings"
 )
 
 // Client пользователь
@@ -17,19 +18,29 @@ type Client struct {
 // Тут регистрируем события/команды
 func (c *Client) registryEvent(mess chan string, allClients *Connected) {
 	closed := make(chan bool, 0)
+	files := new(log_view.LogFiles)
+	files.Init()
 	for {
 		select {
 		case message := <-mess:
 			c.Mess = append(c.Mess, message)
-			fmt.Println("Написал: ", message)
+			command := strings.Split(message, " ")
+			fmt.Println("Написал: ", command[0])
+			if len(command) == 0 {
+				continue
+			}
 			// Отдаем логи
-			switch message {
+			switch command[0] {
 			case "#log":
-				files := new(log_view.LogFiles)
-				files.Init()
 				for _, file := range files.Files {
 					c.Connect.Write([]byte(fmt.Sprintf("Имя: %s\t Дата ред: %s\t Путь: %s\t Размер: %d\n", file.Name, file.ModTime, file.Path, file.Size)))
-					c.Connect.Write([]byte(fmt.Sprintln(string(file.Body))))
+					// c.Connect.Write([]byte(fmt.Sprintln(string(file.Body))))
+				}
+			case "+log":
+				if len(command) > 1 {
+					for _, path := range command[1:] {
+						files.Add(path)
+					}
 				}
 			case "#view_clients":
 				// показываем все соедиенния

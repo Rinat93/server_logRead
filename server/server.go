@@ -10,8 +10,8 @@ import (
 	"strings"
 )
 
-// ServerMain запуск сервера
-func ServerMain() {
+// ServerMain запуск сервера команд
+func ServerCommand() {
 	l, err := net.Listen(config.TYPE, config.HOST+":"+config.PORT)
 	allClients := new(Connected)
 	if err != nil {

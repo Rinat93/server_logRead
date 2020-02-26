@@ -65,7 +65,7 @@ func (lf *LogFiles) Add(path string) (bool, error) {
 	lf.NameCategory = "standart"
 	for _, f := range files {
 		if !f.IsDir() {
-			file := File{Name: f.Name(), Path: "/var/log/", Size: f.Size(), ModTime: f.ModTime()}
+			file := File{Name: f.Name(), Path: path, Size: f.Size(), ModTime: f.ModTime()}
 			go file.Read()
 			lf.Files = append(lf.Files, &file)
 		}
