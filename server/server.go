@@ -22,18 +22,18 @@ func ServerMain() {
 	// Новое соединение
 	newConnections := make(chan net.Conn)
 
-	// канал для новых сообщении/комманд
-	mess := make(chan string)
 	fmt.Println("Listening on " + config.HOST + ":" + config.PORT)
 	go func() {
 		for {
+			// канал для новых сообщении/комманд
+			mess := make(chan string)
 			conn, err := l.Accept()
 			if err != nil {
 				fmt.Println("Error accepting: ", err.Error())
 			}
-			allClients.Add(conn, mess)
 			newConnections <- conn
-
+			allClients.Add(conn, mess)
+			go handleRequest(conn, mess)
 		}
 	}()
 
@@ -41,8 +41,7 @@ func ServerMain() {
 	for {
 		select {
 		case conn := <-newConnections:
-			log.Printf("Accepted new client")
-			go handleRequest(conn, mess)
+			log.Printf("Accepted new client: ", conn.RemoteAddr().String())
 		}
 
 	}
@@ -58,6 +57,7 @@ func handleRequest(conn net.Conn, mess chan<- string) {
 		res := strings.TrimRight(string(buf), "\r\n")
 		if err != nil {
 			fmt.Println("Error reading:", err.Error())
+			break
 		}
 		mess <- res
 	}
