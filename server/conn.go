@@ -36,6 +36,16 @@ func (c *Client) registryEvent(mess chan string, allClients *Connected) {
 					c.Connect.Write([]byte(fmt.Sprintf("Имя: %s\t Дата ред: %s\t Путь: %s\t Размер: %d\n", file.Name, file.ModTime, file.Path, file.Size)))
 					// c.Connect.Write([]byte(fmt.Sprintln(string(file.Body))))
 				}
+			case "#read":
+				if len(command) > 1 {
+					for _, f := range command[1:] {
+						for _, af := range files.Files {
+							if f == af.Path+af.Name {
+								c.Connect.Write([]byte(fmt.Sprintln(string(af.Body))))
+							}
+						}
+					}
+				}
 			case "+log":
 				if len(command) > 1 {
 					for _, path := range command[1:] {
