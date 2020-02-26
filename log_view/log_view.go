@@ -37,18 +37,32 @@ func (f *File) Read() {
 	}
 }
 
+// LogFiles Структура с списком лог файлов
 type LogFiles struct {
-	Name_category string
-	Files         []*File
+	NameCategory string
+	Files        []*File
 }
 
+// Init охраняем список логов
 func (lf *LogFiles) Init() (bool, error) {
-	files, err := ioutil.ReadDir("/var/log/")
+	// go lf.EventRegister()
+	return lf.Add("/var/log/")
+}
+
+// func (lf *LogFiles) EventRegister() {
+// 	for {
+
+// 	}
+// }
+
+// Add Добавить путь логов
+func (lf *LogFiles) Add(path string) (bool, error) {
+	files, err := ioutil.ReadDir(path)
 	if err != nil {
 		log.Fatal(err)
 		return false, err
 	}
-	lf.Name_category = "standart"
+	lf.NameCategory = "standart"
 	for _, f := range files {
 		if !f.IsDir() {
 			file := File{Name: f.Name(), Path: "/var/log/", Size: f.Size(), ModTime: f.ModTime()}

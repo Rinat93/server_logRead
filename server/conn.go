@@ -16,8 +16,6 @@ type Client struct {
 
 // Тут регистрируем события/команды
 func (c *Client) registryEvent(mess chan string, allClients *Connected) {
-	files := new(log_view.LogFiles)
-	files.Init()
 	closed := make(chan bool, 0)
 	for {
 		select {
@@ -25,16 +23,20 @@ func (c *Client) registryEvent(mess chan string, allClients *Connected) {
 			c.Mess = append(c.Mess, message)
 			fmt.Println("Написал: ", message)
 			// Отдаем логи
-			if message == "#log" {
+			switch message {
+			case "#log":
+				files := new(log_view.LogFiles)
+				files.Init()
 				for _, file := range files.Files {
-					c.Connect.Write([]byte(file.Body))
+					c.Connect.Write([]byte(fmt.Sprintf("Имя: %s\t Дата ред: %s\t Путь: %s\t Размер: %d\n", file.Name, file.ModTime, file.Path, file.Size)))
+					c.Connect.Write([]byte(fmt.Sprintln(string(file.Body))))
 				}
-			} else if message == "#view_clients" {
+			case "#view_clients":
 				// показываем все соедиенния
 				for _, client := range allClients.Clients {
 					c.Connect.Write([]byte(client.Ip.String()))
 				}
-			} else if message == "#my_info" {
+			case "#my_info":
 				// Информация о данном пользователе
 				_, err := c.Connect.Write([]byte(fmt.Sprintln("Ваш IP адресс:", c.Connect.RemoteAddr().String()+"\n")))
 				if err != nil {
@@ -46,7 +48,7 @@ func (c *Client) registryEvent(mess chan string, allClients *Connected) {
 						log.Fatal(err)
 					}
 				}
-			} else if message == "exit" {
+			case "#exit":
 				newClient := new(Connected)
 				for _, client := range allClients.Clients {
 					if client.Connect != c.Connect {
