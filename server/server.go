@@ -1,33 +1,28 @@
 package server
 
 import (
-	"air_crug/config"
+	"air_crug/core"
 	"bytes"
 	"fmt"
 	"log"
 	"net"
-	"os"
 	"strings"
 )
 
 // ServerMain запуск сервера команд
 func ServerCommand() {
-	l, err := net.Listen(config.TYPE, config.HOST+":"+config.PORT)
+	l := new(core.SCore)
+	l.Connect()
 	allClients := new(Connected)
-	if err != nil {
-		fmt.Println("ERROR listening: ", err.Error())
-		os.Exit(1)
-	}
-	defer l.Close()
+	defer l.Net.Close()
 	// Новое соединение
 	newConnections := make(chan net.Conn)
 
-	fmt.Println("Listening on " + config.HOST + ":" + config.PORT)
 	go func() {
 		for {
 			// канал для новых сообщении/комманд
 			mess := make(chan string)
-			conn, err := l.Accept()
+			conn, err := l.Net.Accept()
 			if err != nil {
 				fmt.Println("Error accepting: ", err.Error())
 			}
@@ -42,6 +37,7 @@ func ServerCommand() {
 		select {
 		case conn := <-newConnections:
 			log.Printf("Accepted new client: ", conn.RemoteAddr().String())
+			conn.Write([]byte(fmt.Sprintf("Введите свой токен доступа!")))
 		}
 
 	}
