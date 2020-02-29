@@ -1,25 +1,28 @@
 package orm
 
-import "database/sql"
+import (
+	"database/sql"
+	"fmt"
+)
 
 // Table Таблицы
 type Table struct {
 	Name   string
-	Fields []Field
+	Column []Column
 	Db     *sql.DB
 }
 
-// Add Добавление таблицы
-func (t *Table) Add() {
-
-}
-
-// Update Обновление таблицы
-func (t *Table) Update() {
-
+// Create Добавление таблицы
+func (t *Table) Create() {
+	var table string = fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s(id    INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, ", t.Name)
+	for _, columns := range t.Column {
+		table += fmt.Sprintf("%s  %s,", columns.Name, columns.Types)
+	}
+	table += ");"
+	t.Db.Exec(table)
 }
 
 // Delete Удаление таблицы
 func (t *Table) Delete() {
-
+	t.Db.Exec("DROP TABLE %s", t.Name)
 }

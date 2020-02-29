@@ -46,7 +46,7 @@ type Commands struct {
 
 // CreateDb Создание таблиц БД
 func (c *SCore) CreateDb() error {
-	f, err := os.Open("../databases/user.sql")
+	f, err := os.Open("./databases/user.sql")
 	if err != nil {
 		log.Fatal(err)
 	}

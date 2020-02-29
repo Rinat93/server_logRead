@@ -7,14 +7,17 @@ import (
 	"os"
 )
 
+// Database База данных
 type Database struct {
-	Name string
-	Db   *sql.DB // хранить соединение с базой
+	Name   string
+	Db     *sql.DB // хранить соединение с базой
+	Column Column
+	Table  Table
 }
 
 // Create - Создание базы
 func (d *Database) Create() error {
-	f, err := os.Open(fmt.Sprintf("../databases/$1", d.Name))
+	f, err := os.Open(fmt.Sprintf("./databases/%s", d.Name))
 	if err != nil {
 		log.Fatal(err)
 	}

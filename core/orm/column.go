@@ -20,8 +20,3 @@ func (c *Column) Add() {
 func (c *Column) Rename() {
 	c.Db.Exec("ALTER TABLE $1 ADD COLUMN $2 $3", c.Table, c.Name, c.Types)
 }
-
-// Delete - Удаление столбца
-func (c *Column) Delete() {
-	c.Db.Exec("")
-}
