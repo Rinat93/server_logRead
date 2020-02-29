@@ -19,25 +19,27 @@ type SCore struct {
 	User *User
 }
 
-//
+// User пользователь
 type User struct {
 	Id        int32
 	Login     string
 	Password  string
-	Dates_reg time.Time
+	Dates_reg string
 	Hystory   []Hystory
 }
 
+// Hystory Истории входа
 type Hystory struct {
 	Id       int32
-	Dates    time.Time
+	Dates    string
 	User_id  int32
 	Commands []Commands
 }
 
+// Commands какие комманды вводились
 type Commands struct {
 	Id         int32
-	Dates      time.Time
+	Dates      string
 	Commands   string
 	Command_id int32
 }
@@ -81,7 +83,7 @@ func (c *SCore) Connect() {
 
 // GetUser Получить пользователей
 func (c *SCore) GetUser(login string, password string) {
-	rows, err := c.Db.Query("select * from User where login=$1 password=$2", login, password)
+	rows, err := c.Db.Query("select * from User where login=$1 and password=$2", login, password)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -91,7 +93,9 @@ func (c *SCore) GetUser(login string, password string) {
 		if err != nil {
 			log.Fatal("error getuser", err)
 		}
-		fmt.Println(user.Id)
+		if err != nil {
+			log.Fatal("error time", err)
+		}
 	}
 	c.User = &user
 	c.SetHistory()
@@ -99,7 +103,7 @@ func (c *SCore) GetUser(login string, password string) {
 
 // SetUser Создание пользователя
 func (c *SCore) SetUser(login string, password string) {
-	_, err := c.Db.Exec("insert into User (login, password, dates_reg) values ($1, $2, $3)", login, password, time.Now().String())
+	_, err := c.Db.Exec("insert into User(login, password, dates_reg) values ($1, $2, $3)", login, password, time.Now().String())
 	if err != nil {
 		log.Fatal("Уже есть ", err)
 	}
@@ -109,7 +113,7 @@ func (c *SCore) SetUser(login string, password string) {
 // SetPassword Заменить пароль
 func (c *SCore) SetPassword(password string) {
 	c.User.Password = password
-	_, err := c.Db.Exec("insert into User (password) values ($1)", password)
+	_, err := c.Db.Exec("insert into User(password) values ($1)", password)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -118,11 +122,11 @@ func (c *SCore) SetPassword(password string) {
 // SetHistory  Записать историю
 func (c *SCore) SetHistory() {
 	hystory := Hystory{
-		Dates:   time.Now(),
+		Dates:   time.Now().String(),
 		User_id: c.User.Id,
 	}
 	c.User.Hystory = append(c.User.Hystory, hystory)
-	_, err := c.Db.Exec("insert into History (dates,user_id) values ($1,$2)", hystory.Dates.String(), hystory.User_id)
+	_, err := c.Db.Exec("insert into History (dates,user_id) values ($1,$2)", hystory.Dates, hystory.User_id)
 	if err != nil {
 		log.Fatal(err)
 	}
