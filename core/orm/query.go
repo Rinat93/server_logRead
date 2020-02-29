@@ -12,7 +12,7 @@ type Query struct {
 	Table Table
 }
 
-// FindOne Поиск одного элемента
+// Find Поиск одного элемента
 func (q *Query) Find(find map[string]interface{}) *sql.Rows {
 	var query string
 	for key, value := range find {
