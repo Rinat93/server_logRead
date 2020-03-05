@@ -27,6 +27,7 @@ func ServerCommand() {
 				fmt.Println("Error accepting: ", err.Error())
 			}
 			newConnections <- conn
+			allClients.db = l
 			allClients.Add(conn, mess)
 			go handleRequest(conn, mess)
 		}
@@ -37,7 +38,7 @@ func ServerCommand() {
 		select {
 		case conn := <-newConnections:
 			log.Printf("Accepted new client: ", conn.RemoteAddr().String())
-			conn.Write([]byte(fmt.Sprintf("Введите свой токен доступа!")))
+			conn.Write([]byte(fmt.Sprintf("Введите логи и пароль(#login login password)!")))
 		}
 
 	}
